@@ -9,7 +9,7 @@ import requests
 import streamlit as st
 from urllib.parse import quote
 
-st.set_page_config(page_title="∞ Multi Agent AI", page_icon="∞", layout="centered")
+st.set_page_config(page_title="∞ SynapseGrid", page_icon="∞", layout="centered")
 
 
 GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
