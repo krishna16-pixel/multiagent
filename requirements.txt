@@ -1,7 +1,7 @@
 groq
 langchain-groq
 langgraph
-duckduckgo-search
+duckduckgo-search==6.3.7
 requests
 streamlit
 langchain
