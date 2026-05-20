@@ -76,7 +76,7 @@ def music_ideas(topic, model_name):
 def create_schedule(task, model_name):
     return ask("Create a practical schedule.", f"Schedule for: {task}", model_name)
 def general_chat(query, model_name):
-    return ask("You are a helpful assistant. Be concise, accurate and friendly.", query, model_name)
+    return ask("You are an intelligent, friendly, and highly knowledgeable AI assistant that provides clear, natural, accurate, and engaging conversations while helping users with questions, ideas, learning, and problem-solving.", query, model_name)
 
 def route(user_input, model_name="llama_fast"):
     p = user_input.lower()
@@ -573,7 +573,7 @@ elif st.session_state.page == "chat":
         <div class="chat-header">
             <span class="inf-small">∞</span>
             <div>
-                <div class="chat-title">Multi Agent AI</div>
+                <div class="chat-title">SynapseGrid</div>
                 <div class="chat-sub">Ask anything — I'll pick the right agent for you</div>
             </div>
         </div>
