@@ -33,9 +33,12 @@ def ask(system, user, model_name="llama_fast"):
     return response.content
 
 
+import time
+
 def search_news(query):
     try:
         from duckduckgo_search import DDGS
+        time.sleep(1)  # add this line
         with DDGS() as ddgs:
             results = list(ddgs.text(query, max_results=3))
             if not results:
