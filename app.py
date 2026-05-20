@@ -20,9 +20,9 @@ from langchain_groq import ChatGroq
 
 models = {
     "llama_fast": ChatGroq(model="llama-3.1-8b-instant"),
-    "llama":      ChatGroq(model="llama-3.3-70b-versatile"),
+    "llama":      ChatGroq(model="llama-3.3-70b-versatile"),                #multiple models for better response 
     "gemma":      ChatGroq(model="gemma2-9b-it"),
-    "mixtral":    ChatGroq(model="mixtral-8x7b-32768")
+    "mixtral":    ChatGroq(model="mixtral-8x7b-32768")                      #the models used from groq which offers for free
 }
 
 def ask(system, user, model_name="llama_fast"):
@@ -32,7 +32,7 @@ def ask(system, user, model_name="llama_fast"):
     ], max_tokens=800)
     return response.content
 
-# ── Tools ─────────────────────────────────────────────────
+
 def search_news(query):
     try:
         from duckduckgo_search import DDGS
@@ -50,22 +50,22 @@ def search_news(query):
 def gen_image(prompt):
     try:
         encoded = quote(prompt)
-        url = f"https://image.pollinations.ai/prompt/{encoded}?nologo=true&model=flux"
+        url = f"https://image.pollinations.ai/prompt/{encoded}?nologo=true&model=flux"              # for image generation i used pollinations 
         response = requests.get(url, timeout=60)
         return response.content
     except Exception as e:
         return None
 
 def write_report(topic, model_name):
-    return ask("Write a professional report with clear sections.", f"Write report on: {topic}", model_name)
+    return ask("You are a professional report-writing AI that creates detailed, well-structured, research-quality reports with clear headings, summaries, insights, and polished formatting..", f"Write report on: {topic}", model_name)
 def write_blog(topic, model_name):
     return ask("Write an engaging blog post.", f"Write blog about: {topic}", model_name)
 def write_lyrics(topic, model_name):
     return ask("Write original song lyrics with verses and chorus.", f"Write song lyrics: {topic}", model_name)
 def write_code(task, model_name):
-    return ask("Write clean correct code with explanation.", f"Write code for: {task}", model_name)
+    return ask("You are an expert software engineer that writes clean, optimized, scalable, production-ready code with clear explanations, debugging support, and best coding practices..", f"Write code for: {task}", model_name)
 def write_story(topic, model_name):
-    return ask("Write a creative engaging story.", f"Write story about: {topic}", model_name)
+    return ask("Write a creative engaging story.", f"Write story about: {topic}", model_name)                        #multiple agnets 
 def create_plan(goal, model_name):
     return ask("Create a clear step by step plan.", f"Plan for: {goal}", model_name)
 def music_ideas(topic, model_name):
@@ -73,7 +73,7 @@ def music_ideas(topic, model_name):
 def create_schedule(task, model_name):
     return ask("Create a practical schedule.", f"Schedule for: {task}", model_name)
 def general_chat(query, model_name):
-    return ask("You are a helpful assistant. Be concise and friendly.", query, model_name)
+    return ask("You are a helpful assistant. Be concise, accurate and friendly.", query, model_name)
 
 def route(user_input, model_name="llama_fast"):
     p = user_input.lower()
@@ -89,7 +89,7 @@ def route(user_input, model_name="llama_fast"):
         return ("text", write_blog(user_input, model_name))
     elif any(w in p for w in ["lyrics","song","write a song"]):
         return ("text", write_lyrics(user_input, model_name))
-    elif any(w in p for w in ["code","python","program","function","script"]):
+    elif any(w in p for w in ["code","python","program","function","script"]):                                     #router thast conects model response  with user input
         return ("text", write_code(user_input, model_name))
     elif any(w in p for w in ["story","fiction","tale"]):
         return ("text", write_story(user_input, model_name))
@@ -347,8 +347,8 @@ if st.session_state.page == "landing":
         <div class="infinity-wrap">
             <span class="infinity">∞</span>
         </div>
-        <div class="badge">✨ Powered by Groq + LangChain</div>
-        <h1>Multi Agent AI</h1>
+        <div class="badge">✨ Crafted for Intelligent Automation</div>
+        <h1>Aeon Labs</h1>
         <p>An intelligent AI system with specialized agents that think, plan, and act — search the web, write content, generate images and much more.</p>
         <div class="stats">
             <div class="stat"><div class="stat-num">10+</div><div class="stat-label">AI Agents</div></div>
@@ -551,10 +551,10 @@ elif st.session_state.page == "chat":
         "Select AI Model",
         options=["llama_fast", "llama", "gemma", "mixtral"],
         format_func=lambda x: {
-            "llama_fast": "⚡ Llama 3.1 8B (Fast)",
-            "llama":      "🦙 Llama 3.3 70B (Smart)",
-            "gemma":      "💎 Gemma 2 9B (Google)",
-            "mixtral":    "🌀 Mixtral 8x7B (Reasoning)"
+            "llama_fast": "⚡ Kaizen 3.1  (⚡️ Fast & Light)",
+            "llama":      "🦙 Kaizen 3.3  (Smart)",
+            "gemma":      "💎 Gemma 2.1 (Google+Balanced)",
+            "mixtral":    "🌀 Halo 3.2 (📚 Reasoning+Long Context)"
         }[x]
     )
     
@@ -615,7 +615,7 @@ elif st.session_state.page == "chat":
         user_prompt = st.session_state.quick
         del st.session_state.quick
 
-    if user_prompt:
+    if user_prompt:                                           #user chat section :prompt,spinner,result
         with st.chat_message("user"):
             st.write(user_prompt)
 
