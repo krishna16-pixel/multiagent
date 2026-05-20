@@ -16,10 +16,17 @@ GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
 os.environ["GROQ_API_KEY"] = GROQ_API_KEY
 
 from langchain_groq import ChatGroq
-groq = ChatGroq(model="llama-3.1-8b-instant")
 
-def ask(system, user):
-    response = groq.invoke([
+# ── Models ────────────────────────────────────────────────
+models = {
+    "llama_fast": ChatGroq(model="llama-3.1-8b-instant"),
+    "llama":      ChatGroq(model="llama-3.3-70b-versatile"),
+    "gemma":      ChatGroq(model="gemma2-9b-it"),
+    "mixtral":    ChatGroq(model="mixtral-8x7b-32768")
+}
+
+def ask(system, user, model_name="llama_fast"):
+    response = models[model_name].invoke([
         {"role": "system", "content": system},
         {"role": "user",   "content": user[:500]}
     ], max_tokens=800)
@@ -49,66 +56,59 @@ def gen_image(prompt):
     except Exception as e:
         return None
 
-def write_report(topic):
-    return ask("Write a professional report with clear sections.", f"Write report on: {topic}")
+def write_report(topic, model_name):
+    return ask("Write a professional report with clear sections.", f"Write report on: {topic}", model_name)
+def write_blog(topic, model_name):
+    return ask("Write an engaging blog post.", f"Write blog about: {topic}", model_name)
+def write_lyrics(topic, model_name):
+    return ask("Write original song lyrics with verses and chorus.", f"Write song lyrics: {topic}", model_name)
+def write_code(task, model_name):
+    return ask("Write clean correct code with explanation.", f"Write code for: {task}", model_name)
+def write_story(topic, model_name):
+    return ask("Write a creative engaging story.", f"Write story about: {topic}", model_name)
+def create_plan(goal, model_name):
+    return ask("Create a clear step by step plan.", f"Plan for: {goal}", model_name)
+def music_ideas(topic, model_name):
+    return ask("Suggest chord progressions and song structure.", f"Music ideas for: {topic}", model_name)
+def create_schedule(task, model_name):
+    return ask("Create a practical schedule.", f"Schedule for: {task}", model_name)
+def general_chat(query, model_name):
+    return ask("You are a helpful assistant. Be concise and friendly.", query, model_name)
 
-def write_blog(topic):
-    return ask("Write an engaging blog post.", f"Write blog about: {topic}")
-
-def write_lyrics(topic):
-    return ask("Write original song lyrics with verses and chorus.", f"Write song lyrics: {topic}")
-
-def write_code(task):
-    return ask("Write clean correct code with explanation.", f"Write code for: {task}")
-
-def write_story(topic):
-    return ask("Write a creative engaging story.", f"Write story about: {topic}")
-
-def create_plan(goal):
-    return ask("Create a clear step by step plan.", f"Plan for: {goal}")
-
-def music_ideas(topic):
-    return ask("Suggest chord progressions and song structure.", f"Music ideas for: {topic}")
-
-def create_schedule(task):
-    return ask("Create a practical schedule.", f"Schedule for: {task}")
-
-def general_chat(query):
-    return ask("You are a helpful assistant. Be concise and friendly.", query)
-
-def route(user_input):
+def route(user_input, model_name="llama_fast"):
     p = user_input.lower()
     if any(w in p for w in ["latest","news","current","today","recent","search","find"]):
         raw = search_news(user_input)
-        return ("text", ask("Summarize these news results clearly with headlines.", f"Results:\n{raw}"))
+        return ("text", ask("Summarize these news results clearly with headlines.", f"Results:\n{raw}", model_name))
     elif any(w in p for w in ["image","generate image","draw","picture","photo"]):
         img = gen_image(user_input)
         return ("image", img)
     elif any(w in p for w in ["report"]):
-        return ("text", write_report(user_input))
+        return ("text", write_report(user_input, model_name))
     elif any(w in p for w in ["blog","article"]):
-        return ("text", write_blog(user_input))
+        return ("text", write_blog(user_input, model_name))
     elif any(w in p for w in ["lyrics","song","write a song"]):
-        return ("text", write_lyrics(user_input))
+        return ("text", write_lyrics(user_input, model_name))
     elif any(w in p for w in ["code","python","program","function","script"]):
-        return ("text", write_code(user_input))
+        return ("text", write_code(user_input, model_name))
     elif any(w in p for w in ["story","fiction","tale"]):
-        return ("text", write_story(user_input))
+        return ("text", write_story(user_input, model_name))
     elif any(w in p for w in ["plan","steps","roadmap","goal"]):
-        return ("text", create_plan(user_input))
+        return ("text", create_plan(user_input, model_name))
     elif any(w in p for w in ["music","chord","melody","beat"]):
-        return ("text", music_ideas(user_input))
+        return ("text", music_ideas(user_input, model_name))
     elif any(w in p for w in ["schedule","routine","timetable"]):
-        return ("text", create_schedule(user_input))
+        return ("text", create_schedule(user_input, model_name))
     else:
-        return ("text", general_chat(user_input))
+        return ("text", general_chat(user_input, model_name))
 
 # ── Session State ─────────────────────────────────────────
 if "page" not in st.session_state:
     st.session_state.page = "landing"
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
-
+if "selected_model" not in st.session_state:
+    st.session_state.selected_model = "llama_fast"
 # ══════════════════════════════════════════════════════════
 # LANDING PAGE
 # ══════════════════════════════════════════════════════════
@@ -543,7 +543,21 @@ elif st.session_state.page == "chat":
     </style>
     """, unsafe_allow_html=True)
 
-    # ── Header ────────────────────────────────────────────
+    with st.sidebar:
+    st.markdown("### 🤖 Choose Model")
+    st.session_state.selected_model = st.selectbox(
+        "Select AI Model",
+        options=["llama_fast", "llama", "gemma", "mixtral"],
+        format_func=lambda x: {
+            "llama_fast": "⚡ Llama 3.1 8B (Fast)",
+            "llama":      "🦙 Llama 3.3 70B (Smart)",
+            "gemma":      "💎 Gemma 2 9B (Google)",
+            "mixtral":    "🌀 Mixtral 8x7B (Reasoning)"
+        }[x]
+    )
+    
+
+    
     col1, col2, col3 = st.columns([1, 5, 1])
     with col1:
         if st.button("← Home"):
@@ -564,7 +578,7 @@ elif st.session_state.page == "chat":
             st.session_state.chat_history = []
             st.rerun()
 
-    # ── Chat History ──────────────────────────────────────
+    
     for chat in st.session_state.chat_history:
         with st.chat_message("user"):
             st.write(chat["user"])
@@ -574,7 +588,7 @@ elif st.session_state.page == "chat":
             else:
                 st.write(chat["content"])
 
-    # ── Quick Buttons ─────────────────────────────────────
+    
     if not st.session_state.chat_history:
         st.markdown("**💡 Quick Start:**")
         col1, col2, col3, col4 = st.columns(4)
@@ -591,10 +605,10 @@ elif st.session_state.page == "chat":
             if st.button("📄 Write Report"):
                 st.session_state.quick = "Write a report on artificial intelligence"
 
-    # ── Chat Input ────────────────────────────────────────
+    
     user_prompt = st.chat_input("Ask anything...")
 
-    # handle quick buttons
+    
     if "quick" in st.session_state:
         user_prompt = st.session_state.quick
         del st.session_state.quick
@@ -604,7 +618,7 @@ elif st.session_state.page == "chat":
             st.write(user_prompt)
 
         with st.chat_message("assistant"):
-            # spinner based on type
+            
             p = user_prompt.lower()
             if any(w in p for w in ["image","draw","picture","generate"]):
                 spinner = "🎨 Generating image..."
@@ -637,6 +651,6 @@ elif st.session_state.page == "chat":
                 except Exception as e:
                     st.error(f"❌ Error: {e}")
 
-    # ── Chat Stats ────────────────────────────────────────
+    
     if st.session_state.chat_history:
         st.markdown(f"<p style='text-align:center; color:#1e293b; font-size:0.8em; margin-top:10px'>💬 {len(st.session_state.chat_history)} messages in this session</p>", unsafe_allow_html=True)
