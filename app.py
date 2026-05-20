@@ -11,13 +11,13 @@ from urllib.parse import quote
 
 st.set_page_config(page_title="∞ Multi Agent AI", page_icon="∞", layout="centered")
 
-# ── Setup ─────────────────────────────────────────────────
+
 GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
 os.environ["GROQ_API_KEY"] = GROQ_API_KEY
 
 from langchain_groq import ChatGroq
 
-# ── Models ────────────────────────────────────────────────
+
 models = {
     "llama_fast": ChatGroq(model="llama-3.1-8b-instant"),
     "llama":      ChatGroq(model="llama-3.3-70b-versatile"),
@@ -544,8 +544,10 @@ elif st.session_state.page == "chat":
     """, unsafe_allow_html=True)
 
     with st.sidebar:
-    st.markdown("### 🤖 Choose Model")
-    st.session_state.selected_model = st.selectbox(
+        
+    
+        st.markdown("### 🤖 Choose Model")
+        st.session_state.selected_model = st.selectbox(
         "Select AI Model",
         options=["llama_fast", "llama", "gemma", "mixtral"],
         format_func=lambda x: {
